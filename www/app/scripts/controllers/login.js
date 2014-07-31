@@ -11,19 +11,32 @@ angular.module('myAmoebaApp')
         
         $scope.handleLogInClick = function() {
             //Handle log in through Facebook.
-            Parse.FacebookUtils.logIn(null, {
+            Parse.FacebookUtils.logIn("public_profile,user_friends", {
                 success: function(user) {
                     if (!user.existed()) {
-                        //alert("User signed up and logged in through Facebook.");
+                        FB.api('/me', 'get', {fields: "first_name, last_name"}, function(response) {
+                            if (!response.error) {
+                                user.set('firstName', response.first_name);
+                                user.set('lastName', response.last_name);
+                                user.set('username', response.first_name + " " + response.last_name);
+                                user.save(null, {
+                                    success: function(userAgain) {    
+                                        $location.url('/');
+                                        $scope.$apply();
+                                    },
+                                    error: function(userAgain, error) {
+                                        console.log(error.message);
+                                    }
+                                }); 
+                            }
+                       });
                     } else {
-                        //alert("User logged in through Facebook.");
+                        $location.url('/');
+                        $scope.$apply();
                     }
-                    console.log("Routing to main.");
-                    $location.url('/');
-                    $scope.$apply();
                 },
                 error: function(user, error) {
-                    alert("User cancelled the Facebook login or did not fully authorize.");
+                    
                 }
             });
         };

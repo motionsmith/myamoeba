@@ -12,7 +12,7 @@ angular.module('myAmoebaApp')
         
         
         if (currentUser) {
-            console.log("MainCtrl sees " + currentUser.get("username"));
+            $scope.userFirstName = currentUser.get("firstName");
         } else {
             console.log("Routing to login screen...");
             $location.url("/login");
