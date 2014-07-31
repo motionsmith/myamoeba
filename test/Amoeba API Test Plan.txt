@@ -1,0 +1,35 @@
+Amoeba API Test Plan:
+For each item below, submit a list of valid and invalid parameters and verify results. 
+
+Bonus:
+Do this programmatically. 
+
+
+createAmoeba(user, [parentA, parentB])
+Creates a new amoeba with the provided user as the breeder and owner. If parents are not specified, then the amoeba is an "adam".
+
+getAncestors(amoeba, orderBy, limit)
+Returns an array of the amoeba's ancestors.  Results can either be ordered by the amoebae's fame rank or by their birthdate.
+
+getDescendents(amoeba, orderBy, limit)
+Returns an array of the amoeba's descendents.
+
+getNumAncestors(amoeba)
+Returns the total number of ancestors of the provided amoeba.
+
+getNumDescendents(amoeba)
+Returns the total number of descendents of the provided amoeba.
+
+adopt(amoeba, user)
+Transfers ownership of the provided amoeba to the provided user
+
+getAmoebaeOfOwner(user)
+Returns an array of the amoebae that are owned by the provided user.
+
+getAmoebaeOfBreeder(user)
+Returns an array of the amoeba that were bred by the provided user.
+
+
+Bonus
+feed(amoeba)
+Resets the death timer on the amoeba.
