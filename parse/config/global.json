@@ -1,0 +1,14 @@
+{
+    "applications": {
+        "My Amoeba": {
+            "applicationId": "iLnBp9fs6Rt8bT4aFWZdiVShVs0fZuxhbpyh20UX", 
+            "masterKey": "hdwSG9zzlvV3q2nzQW6XYhLROlwgGI5ak14cwVqf"
+        }, 
+        "_default": {
+            "link": "My Amoeba"
+        }
+    }, 
+    "global": {
+        "parseVersion": "1.2.19"
+    }
+}
