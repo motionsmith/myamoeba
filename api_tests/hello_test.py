@@ -8,7 +8,7 @@ AUTH_HEADERS = {
 
 connection = httplib.HTTPSConnection('api.parse.com', 443)
 connection.connect()
-connection.request('POST', '/1/functions/getAncestors', json.dumps({'nodeId':'wGnHJiWQO5'}),
+connection.request('POST', '/1/functions/getAncestors', json.dumps({'nodeId':'OvdQFjqPlE', 'orderBy':'score'}),
  	{
        "X-Parse-Application-Id": "iLnBp9fs6Rt8bT4aFWZdiVShVs0fZuxhbpyh20UX",
        "X-Parse-REST-API-Key": "O0aoMOzkCjHAzmSeTHTv22n2gSonI69FTf8pjHr2",
