@@ -33,6 +33,33 @@ angular.module('MyAmoebaModels', []).
             }
         });
         
+         Object.defineProperty(Amoeba.prototype, "parentA", {
+            get: function() {
+                return this.get("parentA");
+            },
+            set: function(val) {
+                this.set("parentA", val);
+            }
+        });
+        
+         Object.defineProperty(Amoeba.prototype, "parentB", {
+            get: function() {
+                return this.get("parentB");
+            },
+            set: function(val) {
+                this.set("parentB", val);
+            }
+        });
+        
+         Object.defineProperty(Amoeba.prototype, "recipient", {
+            get: function() {
+                return this.get("recipient");
+            },
+            set: function(val) {
+                this.set("recipient", val);
+            }
+        });
+        
         return Amoeba;
     }).
     factory('MyAmoebaUser', function() {

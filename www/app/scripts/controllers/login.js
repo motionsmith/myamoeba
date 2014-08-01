@@ -11,7 +11,7 @@ angular.module('myAmoebaApp')
         
         $scope.handleLogInClick = function() {
             //Handle log in through Facebook.
-            Parse.FacebookUtils.logIn("public_profile,user_friends", {
+            Parse.FacebookUtils.logIn("public_profile,user_friends,email", {
                 success: function(user) {
                     if (!user.existed()) {
                         FB.api('/me', 'get', {fields: "first_name, last_name"}, function(response) {
@@ -19,6 +19,7 @@ angular.module('myAmoebaApp')
                                 user.set('firstName', response.first_name);
                                 user.set('lastName', response.last_name);
                                 user.set('username', response.first_name + " " + response.last_name);
+                                user.set('facebookId', response.id);
                                 user.save(null, {
                                     success: function(userAgain) {    
                                         $location.url('/');

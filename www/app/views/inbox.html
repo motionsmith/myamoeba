@@ -1,0 +1,20 @@
+<h1>Get infected.</h1>
+<div class="container">
+    <div>
+        {{inboxStateMessage}}
+    </div>
+    <div>
+        <a href="/"><< Back to your amoebae</a>
+    </div>
+    <ul>
+        <li ng-repeat="amoeba in incomingAmoebae">
+            <div>
+                <strong>{{amoeba.owner.username}}</strong> sent you {{amoeba.name}}.
+            </div>
+            <div>
+                <button type="button" class="btn btn-success" ng-click="accept($index)">Accept</button>
+                <button type="button" class="btn btn-danger" ng-click="accept($index)">Decline</button>
+            </div>
+        </li>
+    </ul>
+</div>

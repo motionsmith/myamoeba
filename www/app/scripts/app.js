@@ -20,6 +20,10 @@ angular
             templateUrl: 'views/login.html',
             controller: 'LoginCtrl'
         })
+        .when('/inbox', {
+            templateUrl: 'views/inbox.html',
+            controller: 'InboxCtrl'
+        })
         .otherwise({
             redirectTo: '/'
         });
@@ -36,16 +40,18 @@ angular
                   appId         : '266061040264102',
                   cookie        : true,
                   xfbml         : true,
-                  version       : 'v1.0'
+                  version       : 'v2.0'
               });
+            $rootScope.fbInitialized = true;
+            $rootScope.$broadcast("fbInitComplete");
           };
           
-          console.log("Page load. Loading Facebook SDK.");
+          console.log("Loading Facebook SDK.");
           (function(d, s, id){
               var js, fjs = d.getElementsByTagName(s)[0];
               if (d.getElementById(id)) {return;}
               js = d.createElement(s); js.id = id;
-              js.src = "//connect.facebook.net/en_US/all.js";
+              js.src = "//connect.facebook.net/en_US/sdk.js";
               fjs.parentNode.insertBefore(js, fjs);
           }(document, 'script', 'facebook-jssdk'));
     }]);
