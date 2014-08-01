@@ -43,20 +43,27 @@ var getNodeAndAncestors = function(accumulator, nodeIds, callback) {
 				callback(accumulator);
 			}
 
-			console.log("Parsing result: " + JSON.stringify(results));
+			console.log("Parsing results: " + JSON.stringify(results));
 
 			nextNodeIds = [];
 
 			for (i=0;i<results.length;i++) {
 
-				parents = results[i]['parents'];
-				console.log("NodeId: " + results[i]['objectId'] + ", Parents: " + parents);
-				accumulator[results[i]['objectId']] = parents;
+				var node = results[i];
+				var objectId = node.id;
+				var parents = node.get("parents");
+				console.log("node: " + node);
+				console.log("NodeId: " + objectId + ", Parents: " + parents);
+				accumulator[objectId] = parents;
 
 				
 				for (j=0;parents !== undefined && j < parents.length;j++) {
-					console.log("Adding parentId " + parents[j]['objectId'] + " to nextNodeIds.");
-					nextNodeIds.push(parents[j]['objectId']);
+
+					var parent = parents[j];
+					var parentId = parent.id;
+
+					console.log("Adding parentId " + parentId + " to nextNodeIds.");
+					nextNodeIds.push(parentId);
 				}
 
 			}
