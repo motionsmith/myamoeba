@@ -1,4 +1,27 @@
-<h1>Feel free to interface, {{userFirstName}}</h1>
+<h1>Feel free to interface, {{sessionUser.firstName}}</h1>
+<div class="container" ng-show="ownerAmoebaeLoaded">
+    <div>
+        Select an Amoeba: <select ng-model="selectedAmoeba" ng-options="amoeba.name for amoeba in myAmoebae"></select>
+    </div>
+    <div>
+        <strong>Breeder:</strong> {{selectedAmoeba.breeder.username}}
+    </div>
+    <div>
+        <strong>Birthday:</strong> {{selectedAmoeba.createdAt | date: 'mediumDate'}}
+    </div>
+    <div>
+        <strong>Breed with: </strong> <select ng-model="breedWithAmoeba" ng-options="b.name for b in myAmoebae"></select>
+        <button type="button" class="btn btn-success btn-xs" ng-click="handleBreedClick()">+</button>
+        <span>{{breedStateMessage}}</span>
+    </div>
+    <div>
+        <strong>Change {{selectedAmoeba.name}}'s name: </strong>
+        <input type="text" placeholder="New name" ng-model="selectedAmoeba.name">
+        <button type="button" class="btn btn-success btn-xs" ng-click="handleRenameClick()">Rename</button>
+        <span>{{renameStateMessage}}</span>
+    </div>
+</div>
 <div>
-     <button type="button" class="btn" ng-click="handleLogoutClick()">Logout</button>
+    <button type="button" class="btn" ng-click="handleLogoutClick()">Logout</button>
+</div>
 </div>
