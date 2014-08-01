@@ -1,4 +1,16 @@
-<h1>Feel free to interface, {{userFirstName}}</h1>
+<h1>Feel free to interface, {{sessionUser.firstName}}</h1>
+<div class="container" ng-show="ownerAmoebaeLoaded">
+    <div>
+        Select an Amoeba: <select ng-model="selectedAmoeba" ng-options="amoeba.name for amoeba in myAmoebae" ng-init="selectedAmoeba=myAmoebae[0]"></select>
+    </div>
+    <div>
+        <strong>Breeder:</strong> {{selectedAmoeba.breeder.username}}
+    </div>
+    <div>
+        <strong>Birthday:</strong> {{selectedAmoeba.createdAt | date: 'mediumDate'}}
+    </div>
+</div>
 <div>
-     <button type="button" class="btn" ng-click="handleLogoutClick()">Logout</button>
+    <button type="button" class="btn" ng-click="handleLogoutClick()">Logout</button>
+</div>
 </div>
