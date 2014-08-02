@@ -25,51 +25,7 @@
       <!-- Initialize Facebook -->
       <div id="fb-root"></div>
       <script>
-          //Parse.initialize("iLnBp9fs6Rt8bT4aFWZdiVShVs0fZuxhbpyh20UX", "UCNtTlpwG06wLcXBhY8YwlScUndCt3jKsx4VHY6H");
           
-          /*window.fbAsyncInit = function() {
-              console.log("Facebook SDK downloaded. Attempting to initialize Facebook...");
-              //if (FB._initialized == false) {
-                  console.log("Initializing Facebook.");
-                  Parse.FacebookUtils.init({
-                      appId         : '266061040264102',
-                      cookie        : true,
-                      xfbml         : true,
-                      version       : 'v1.0'
-                  });
-              //}
-          };
-          
-          console.log("Page load. Loading Facebook SDK.");
-          (function(d, s, id){
-              var js, fjs = d.getElementsByTagName(s)[0];
-              if (d.getElementById(id)) {return;}
-              js = d.createElement(s); js.id = id;
-              js.src = "//connect.facebook.net/en_US/sdk.js";
-              fjs.parentNode.insertBefore(js, fjs);
-          }(document, 'script', 'facebook-jssdk'));*/
-
-          Parse.initialize("iLnBp9fs6Rt8bT4aFWZdiVShVs0fZuxhbpyh20UX", "UCNtTlpwG06wLcXBhY8YwlScUndCt3jKsx4VHY6H");
-
-          window.fbAsyncInit = function() {
-              console.log("Facebook SDK downloaded. Attempting to initialize Facebook...");
-              console.log("Initializing Facebook.");
-              Parse.FacebookUtils.init({
-                  appId         : '266345616902311',
-                  cookie        : true,
-                  xfbml         : true,
-                  version       : 'v2.0'
-              });
-          };
-          
-          console.log("Loading Facebook SDK.");
-          (function(d, s, id){
-              var js, fjs = d.getElementsByTagName(s)[0];
-              if (d.getElementById(id)) {return;}
-              js = d.createElement(s); js.id = id;
-              js.src = "//connect.facebook.net/en_US/sdk.js";
-              fjs.parentNode.insertBefore(js, fjs);
-          }(document, 'script', 'facebook-jssdk'));
       </script>
 
     <!-- Add your site or application content here -->

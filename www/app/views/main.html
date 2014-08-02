@@ -33,7 +33,7 @@
         <button type="button" class="btn btn-success btn-xs" ng-click="handleRenameClick()">Rename</button>
         <span>{{renameStateMessage}}</span>
     </div>
-    <div ng-hide="selectedAmoeba.recipient">
+    <div ng-hide="selectedAmoeba.recipient || recipients.length == 0">
         <strong>Send to: </strong>
         <select ng-model="selectedRecipient" ng-options="recipient.name for recipient in recipients"></select>
         <button type="button" class="btn btn-success btn-xs" ng-click="handleSendClick()">Send</button>
@@ -42,6 +42,9 @@
     <div ng-show="selectedAmoeba.recipient">
         You sent {{selectedAmoeba.name}} to {{selectedAmoeba.recipient.username}}, but they haven't adopted {{selectedAmoeba.name}} yet...
         <button type="button" class="btn btn-success btn-xs" ng-click="handleTakeBackClick()">Take {{selectedAmoeba.name}} Back</button>
+    </div>
+    <div ng-show="recipients.length == 0">
+        You have no Facebook friends who are playing My Amoeba. Invite some friends to share your amoeba with them.
     </div>
     <div>
         <button type="button" class="btn btn-danger" ng-click="handleKillClick()">Kill {{selectedAmoeba.name}}</button>

@@ -29,7 +29,32 @@ angular
         });
     }])
     .run(['$rootScope', '$location', 'MyAmoebaUser', function($rootScope, $location, MyAmoebaUser) {
-        Parse.initialize("iLnBp9fs6Rt8bT4aFWZdiVShVs0fZuxhbpyh20UX", "UCNtTlpwG06wLcXBhY8YwlScUndCt3jKsx4VHY6H");
-        
+
+      console.log("Angular run");
+      $rootScope.isFbReady = false;
+      Parse.initialize("iLnBp9fs6Rt8bT4aFWZdiVShVs0fZuxhbpyh20UX", "UCNtTlpwG06wLcXBhY8YwlScUndCt3jKsx4VHY6H");
+
+          window.fbAsyncInit = function() {
+              console.log("Facebook SDK downloaded. Attempting to initialize Facebook...");
+              console.log("Initializing Facebook.");
+              Parse.FacebookUtils.init({
+                  appId         : '266345616902311',
+                  cookie        : true,
+                  xfbml         : true,
+                  version       : 'v2.0'
+              });
+              $rootScope.isFbReady = true;
+              $rootScope.$broadcast("onFbInitialized")
+          };
+          
+          console.log("Loading Facebook SDK.");
+          (function(d, s, id){
+              var js, fjs = d.getElementsByTagName(s)[0];
+              if (d.getElementById(id)) {return;}
+              js = d.createElement(s); js.id = id;
+              js.src = "//connect.facebook.net/en_US/sdk.js";
+              fjs.parentNode.insertBefore(js, fjs);
+          }(document, 'script', 'facebook-jssdk'));
+
         $rootScope.sessionUser = MyAmoebaUser.current();
     }]);

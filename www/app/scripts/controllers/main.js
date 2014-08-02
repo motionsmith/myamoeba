@@ -124,12 +124,15 @@ angular.module('myAmoebaApp')
         }
         
         var fetchRecipients = function () {
+            console.log("Fetch recipients");
             //Get users that this user can send an amoeba to.
             FB.api('/me/friends', function(response) {
                 if (response && !response.error) {
                     $scope.recipients = response.data;
                     $scope.sendStateMessage = '';
-                    $scope.selectedRecipient = $scope.recipients[0];
+                    if ($scope.recipients.length > 0) {
+                        $scope.selectedRecipient = $scope.recipients[0];
+                    }
                     $scope.$apply();
                 }
                 else if (response.error) {
@@ -181,12 +184,14 @@ angular.module('myAmoebaApp')
             });
                     
             
-            /*if ($rootScope.fbInitialized)
+            if ($rootScope.isFbReady)
             {
+                console.log("Fetching recipients");
                fetchRecipients();
             } else {
-                $scope.$on("fbInitComplete", fetchRecipients);   
-            }*/
+                console.log("Cannot fetch recipients. FB.init() has not completed.");
+                $rootScope.$on("onFbInitialized", fetchRecipients);
+            }
             
         } else {
             console.log("Routing to login screen...");
