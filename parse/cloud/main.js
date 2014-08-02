@@ -106,28 +106,26 @@ Parse.Cloud.define("getAncestors", function(request, response) {
 	getAncestors(request.params.amoebaId, limit, function(result) {
 
 		if (request.params.orderBy && request.params.orderBy === 'score') {
-
-			result = result.sort(function(a,b) { 
-
-				af = 'breeder' in a && 'numFriends' in a['breeder'] ? a['breeder']['numFriends'] : 0;
-				bf = 'breeder' in a && 'numFriends' in b['breeder'] ? b['breeder']['numFriends'] : 0;
-
-				return af - bf;
-			});
+			result = result.sort(function(a,b) { return b['fame'] - a['fame']});
 		}
 		else {
-			result = result.sort(function(a,b) { return a['createdAt'] - b['createdAt']});
+			result = result.sort(function(a,b) { return b['createdAt'] - a['createdAt']});
 		}
 
 		// Remove self from ancestor list.
 		selfi = -1;
-		for (x in result) {
-			if (result[x].id == request.params.amoebaId) {
-				selfi = x;
-				break;
-			}
+		// stats = {'numAncestors':0, 'numAncestorFriends': 0};
+		// for (x in result) {
+		// 	if (result[x].id == request.params.amoebaId) {
+		// 		selfi = x;
+		// 	}
+		// 	else {
+		// 		stats['numAncestors'] += 1;
+		// 		if 'breeder' in a
+		// 		stats['numAncestorFriends']  += 
+		// 	}
 
-		}
+		// }
 
 		// Stash self in the result, as sibling to ancestors.
 		self = selfi > -1 ? result.splice(selfi, 1)[0] : null;
@@ -138,3 +136,36 @@ Parse.Cloud.define("getAncestors", function(request, response) {
 });
 
 
+Parse.Cloud.beforeSave("Amoeba", function(request, response) {
+
+	parentKeys = ['parentA', 'parentB'];
+    totalFriends = request.object.get('totalFriends');
+    if (isNaN(totalFriends)) {
+    	totalFriends = 0;
+    }
+    numAncestors = 0;
+
+	for (k in parentKeys) {
+		var parent = request.object.get(parentKeys[k]);
+
+		parent_totalAncestralFriends = 0;
+		parent_numAncestors = 0;
+		if (parent) {
+			numAncestors += 1; // count parent
+			parentAncestors = parent.get('numAncestors');
+			if (parentAncestors) { // count parent-ancestors
+				numAncestors += parentAncestors;
+			}
+
+			parentTotalFriends = parent.get('totalFriends');
+			if (parentTotalFriends) {
+				totalFriends += parentTotalFriends;
+			}
+		}
+	}
+
+	request.object.set("numAncestors") = numAncestors;
+	request.object.set("totalFriends") = totalFriends;
+
+	response.success();
+});
