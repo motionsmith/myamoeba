@@ -89,7 +89,7 @@ var getAncestors = function(nodeId, limit, callback) {
 /*
  * POST
  * path: /1/functions/getAncestors
- * data: {'nodeId':'OvdQFjqPlE', 'orderBy':'score', "limit": 25}
+ * data: {'amoebaId':'OvdQFjqPlE', 'orderBy':'score', "limit": 25}
 
  * returns: a document containing:
  * self: the target Node
@@ -103,7 +103,7 @@ Parse.Cloud.define("getAncestors", function(request, response) {
 
 	if (isNaN(limit))  {limit = 25};
 
-	getAncestors(request.params.nodeId, limit, function(result) {
+	getAncestors(request.params.amoebaId, limit, function(result) {
 
 		if (request.params.orderBy && request.params.orderBy === 'score') {
 
@@ -122,7 +122,7 @@ Parse.Cloud.define("getAncestors", function(request, response) {
 		// Remove self from ancestor list.
 		selfi = -1;
 		for (x in result) {
-			if (result[x].id == request.params.nodeId) {
+			if (result[x].id == request.params.amoebaId) {
 				selfi = x;
 				break;
 			}
