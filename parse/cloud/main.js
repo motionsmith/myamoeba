@@ -22,7 +22,7 @@ Parse.Cloud.define("nodes", function(request, response) {
 
 
 
-var getAmoebaAndAncestors = function(accumulator, nodeIds, callback) {
+var getAmoebaAndAncestors = function(accumulator, nodeIds, limit, callback) {
 
 	var query = new Parse.Query("Amoeba");
 	query.containedIn("objectId", nodeIds);
@@ -62,7 +62,11 @@ var getAmoebaAndAncestors = function(accumulator, nodeIds, callback) {
 
 			}
 
-			getAmoebaAndAncestors(accumulator, nextNodeIds, callback);
+			if (accumulator.length >= limit+1) {
+				callback(accumulator);
+			}
+
+			getAmoebaAndAncestors(accumulator, nextNodeIds, limit, callback);
 
 		}
 		,
@@ -74,18 +78,32 @@ var getAmoebaAndAncestors = function(accumulator, nodeIds, callback) {
 }
 
 // getAncestors is the primary of a tail-recursive call to get the Nodes for all ancestors.
-var getAncestors = function(nodeId, callback) {
+var getAncestors = function(nodeId, limit, callback) {
 	accumulator= [];
 	nodeIds = [];
 	nodeIds.push(nodeId);
-	getAmoebaAndAncestors(accumulator, nodeIds, callback);
+	getAmoebaAndAncestors(accumulator, nodeIds, limit, callback);
 }
 
 
+/*
+ * POST
+ * path: /1/functions/getAncestors
+ * data: {'nodeId':'OvdQFjqPlE', 'orderBy':'score', "limit": 25}
+
+ * returns: a document containing:
+ * self: the target Node
+ * ancestors: a list of ancestor nodes, sorted in createdAt time order by default or by 'score' order if
+ *            specified in the request data.
+ */
 
 Parse.Cloud.define("getAncestors", function(request, response) {
 
-	getAncestors(request.params.nodeId, function(result) {
+	limit = parseInt(request.params.limit);
+
+	if (isNaN(limit))  {limit = 25};
+
+	getAncestors(request.params.nodeId, limit, function(result) {
 
 		if (request.params.orderBy && request.params.orderBy === 'score') {
 
@@ -101,8 +119,20 @@ Parse.Cloud.define("getAncestors", function(request, response) {
 			result = result.sort(function(a,b) { return a['createdAt'] - b['createdAt']});
 		}
 
+		// Remove self from ancestor list.
+		selfi = -1;
+		for (x in result) {
+			if (result[x].id == request.params.nodeId) {
+				selfi = x;
+				break;
+			}
 
-		response.success({"count":result.length, "ancestors": result});
+		}
+
+		// Stash self in the result, as sibling to ancestors.
+		self = selfi > -1 ? result.splice(selfi, 1)[0] : null;
+
+		response.success({"count":result.length, "self": self, "ancestors": result});
 	});
 
 });
