@@ -164,8 +164,8 @@ Parse.Cloud.beforeSave("Amoeba", function(request, response) {
 		}
 	}
 
-	request.object.set("numAncestors") = numAncestors;
-	request.object.set("totalFriends") = totalFriends;
+	request.object.set("numAncestors", numAncestors);
+	request.object.set("totalFriends", totalFriends);
 
 	response.success();
 });
