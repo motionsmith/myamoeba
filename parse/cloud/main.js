@@ -83,6 +83,8 @@ var getAncestors = function(nodeId, limit, callback) {
 	nodeIds = [];
 	nodeIds.push(nodeId);
 	getAmoebaAndAncestors(accumulator, nodeIds, limit, callback);
+
+
 }
 
 
@@ -118,16 +120,10 @@ Parse.Cloud.define("getAncestors", function(request, response) {
 
 		// Remove self from ancestor list.
 		selfi = -1;
-		// stats = {'numAncestors':0, 'numAncestorFriends': 0};
 		for (x in result) {
 			if (result[x].id == request.params.amoebaId) {
 				selfi = x;
 			}
-			// else {
-			// 	stats['numAncestors'] += 1;
-			// 	if 'breeder' in a
-			// 	stats['numAncestorFriends']  += 
-			// }
 		}
 
 		// Stash self in the result, as sibling to ancestors.
@@ -137,6 +133,91 @@ Parse.Cloud.define("getAncestors", function(request, response) {
 	});
 
 });
+
+var getAncestorsX = function(accumulator, amoebaId) {
+    console.log("Enter getAncestorsX")
+
+    var query = new Parse.Query("Amoeba").equalTo('objectId', amoebaId);
+    query.include("parentA");
+    query.include("parentB");
+    query.include("owner");
+    query.include("breeder");
+
+    var promise = new Parse.Promise();
+
+    query.find().then(function(results) {
+        if (results.length == 0)
+        {
+            promise.resolve(accumulator);
+        }
+        else
+        {
+
+	        for (x in results) {
+	        	accumulator[amoebaId] = results[x];
+
+	        	var promises = [];
+	        	parentA = result.get('parentA');
+	        	parentB = result.get('parentB');
+
+	        	if (parentA) {
+	            	promises.push(getAncestorsX(accumulator, parentA.id));
+	            }
+
+	            if (parentB) {
+	            	promises.push(getAncestorsX(accumulator, parentB.id));
+	            }
+
+	        }
+
+            promise = Parse.Promise.when(promises);
+        }
+    }, function(error) {
+        promise.reject(error);
+    });
+
+    return promise;
+}
+
+
+Parse.Cloud.define("getAncestorsX", function(request, response) {
+
+	limit = parseInt(request.params.limit);
+
+	if (isNaN(limit))  {limit = 25};
+
+	accumulator = {};
+	getAncestorsX(accumulator, request.params.amoebaId).then(function(result) {
+
+		// if (request.params.orderBy && request.params.orderBy === 'score') {
+		// 	result = result.sort(function(a,b) { 
+		// 		bScore = b.get('totalFriends') / b.get('numAncestors');
+		// 		aScore = a.get('totalFriends') / a.get('numAncestors');
+		// 		return bScore - aScore;
+		// 	});
+		// }
+		// else {
+		// 	result = result.sort(function(a,b) { return b['createdAt'] - a['createdAt']});
+		// }
+
+		// // Remove self from ancestor list.
+		// selfi = -1;
+		// for (x in result) {
+		// 	if (result[x].id == request.params.amoebaId) {
+		// 		selfi = x;
+		// 	}
+		// }
+
+		// // Stash self in the result, as sibling to ancestors.
+		// self = selfi > -1 ? result.splice(selfi, 1)[0] : null;
+
+		// response.success({"count":result.length, "self": self, "ancestors": result});
+		response.success(result);
+
+	});
+
+});
+
 
 
 Parse.Cloud.beforeSave("Amoeba", function(request, response) {
