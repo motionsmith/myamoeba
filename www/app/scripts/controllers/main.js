@@ -133,6 +133,12 @@ angular.module('myAmoebaApp')
                     if ($scope.recipients.length > 0) {
                         $scope.selectedRecipient = $scope.recipients[0];
                     }
+
+                    //Update the number of friends this user has in the game.
+                    //This affects the amoeba fame.
+                    $rootScope.sessionUser.numFriends = $scope.recipients.length;
+                    $rootScope.sessionUser.save();
+
                     $scope.$apply();
                 }
                 else if (response.error) {

@@ -94,6 +94,15 @@ angular.module('MyAmoebaModels', []).
             }
         });
         
+        Object.defineProperty(User.prototype, "numFriends", {
+            get: function() {
+                return this.get("numFriends");
+            },
+            set: function(val) {
+                this.set("numFriends", val);
+            }
+        });
+        
         return User;
     });
         
