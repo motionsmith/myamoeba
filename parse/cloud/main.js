@@ -106,7 +106,10 @@ Parse.Cloud.define("getAncestors", function(request, response) {
 	getAncestors(request.params.amoebaId, limit, function(result) {
 
 		if (request.params.orderBy && request.params.orderBy === 'score') {
-			result = result.sort(function(a,b) { return b['fame'] - a['fame']});
+			result = result.sort(function(a,b) { 
+				bScore = b.get('totalFriends') / b.get('numAncestors');
+				aScore = a.get('totalFriends') / a.get('numAncestors');
+				return bScore - aScore;
 		}
 		else {
 			result = result.sort(function(a,b) { return b['createdAt'] - a['createdAt']});
@@ -115,17 +118,16 @@ Parse.Cloud.define("getAncestors", function(request, response) {
 		// Remove self from ancestor list.
 		selfi = -1;
 		// stats = {'numAncestors':0, 'numAncestorFriends': 0};
-		// for (x in result) {
-		// 	if (result[x].id == request.params.amoebaId) {
-		// 		selfi = x;
-		// 	}
-		// 	else {
-		// 		stats['numAncestors'] += 1;
-		// 		if 'breeder' in a
-		// 		stats['numAncestorFriends']  += 
-		// 	}
-
-		// }
+		for (x in result) {
+			if (result[x].id == request.params.amoebaId) {
+				selfi = x;
+			}
+			// else {
+			// 	stats['numAncestors'] += 1;
+			// 	if 'breeder' in a
+			// 	stats['numAncestorFriends']  += 
+			// }
+		}
 
 		// Stash self in the result, as sibling to ancestors.
 		self = selfi > -1 ? result.splice(selfi, 1)[0] : null;
