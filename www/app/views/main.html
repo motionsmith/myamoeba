@@ -19,7 +19,8 @@
         <strong>Birthday:</strong> {{selectedAmoeba.createdAt | date: 'mediumDate'}}
     </div>
     <div>
-        <strong>Parents: </strong> {{selectedAmoeba.parentA.name}} and {{selectedAmoeba.parentB.name}}
+        <span ng-show="selectedAmoeba.parentA && selectedAmoeba.parentB"><strong>Parents: </strong> {{selectedAmoeba.parentA.name}} and {{selectedAmoeba.parentB.name}}</span>
+        <span ng-hide="selectedAmoeba.parentA && selectedAmoeba.parentB">This amoeba does not have parents.
     </div>
     <div>
         <strong>Breed with: </strong> <select ng-model="breedWithAmoeba" ng-options="b.name for b in myAmoebae"></select>

@@ -44,6 +44,9 @@ angular.module('myAmoebaApp')
             incomingAmoebaQuery.find({
                 success: function(results) {
                     $scope.incomingAmoebae = results;
+                    if ($scope.incomingAmoebae.length == 0) {
+                        $scope.inboxStateMessage = "You have no incoming Amoebae.";
+                    }
                     $scope.$apply();
                 },
                 error: function(results, error) {

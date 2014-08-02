@@ -11,7 +11,8 @@ angular.module('myAmoebaApp')
         
         $scope.handleBreedClick = function() {
             if ($scope.selectedAmoeba == $scope.breedWithAmoeba) {
-                $scope.breedStateMessage = 'Amoebae don\'t breed asexually.';   
+                $scope.breedStateMessage = 'Amoebae don\'t breed asexually.';
+                return;   
             } else {
                 $scope.breedStateMessage = 'Breeding...';
             }
@@ -60,7 +61,8 @@ angular.module('myAmoebaApp')
             var amoebaToKill = $scope.selectedAmoeba;
             $scope.myAmoebae.splice($scope.myAmoebae.indexOf(amoebaToKill), 1);
             $scope.selectedAmoeba = $scope.myAmoebae[0];
-            amoebaToKill.destroy({
+            amoebaToKill.isDead = true;
+            amoebaToKill.save(null, {
                 success: function(amoebaAgain) {
                     $scope.killStateMessage = amoebaAgain.name + " is dead.";
                     $scope.$apply();
@@ -109,6 +111,17 @@ angular.module('myAmoebaApp')
                 }
             });
         }
+
+        $scope.getAncestors = function() {
+            Parse.Cloud.run('getAncestors', {"amoebaId": $scope.selectedAmoeba.id}, {
+                success: function(result) {
+                    $scope.ancestors = result.ancestors;
+                },
+                error: function(result, error) {
+                    console.log(error.message);
+                },
+            });
+        }
         
         var fetchRecipients = function () {
             //Get users that this user can send an amoeba to.
@@ -135,6 +148,7 @@ angular.module('myAmoebaApp')
              //Get the amoebae that this user owns.
             var myAmoebaeQuery = new Parse.Query(Amoeba);
             myAmoebaeQuery.equalTo("owner", $rootScope.sessionUser);
+            myAmoebaeQuery.notEqualTo("isDead", true);
             myAmoebaeQuery.include("owner");
             myAmoebaeQuery.include("breeder");
             myAmoebaeQuery.include("parentA");
@@ -167,12 +181,12 @@ angular.module('myAmoebaApp')
             });
                     
             
-            if ($rootScope.fbInitialized)
+            /*if ($rootScope.fbInitialized)
             {
                fetchRecipients();
             } else {
                 $scope.$on("fbInitComplete", fetchRecipients);   
-            }
+            }*/
             
         } else {
             console.log("Routing to login screen...");

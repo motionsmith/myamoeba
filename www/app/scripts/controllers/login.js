@@ -1,11 +1,10 @@
 'use strict';
 
 angular.module('myAmoebaApp')
-    .controller('LoginCtrl', ['$scope', '$location', function ($scope, $location) {
+    .controller('LoginCtrl', ['$scope', '$location', '$rootScope', function ($scope, $location, $rootScope) {
         
         //Don't hang out on the login screen if we're already logged in.
-        var currentUser = Parse.User.current();
-        if (currentUser) {
+        if ($rootScope.sessionUser && $rootScope.sessionUser.authenticated()) {
             $location.url('/');
         }
         
@@ -13,6 +12,7 @@ angular.module('myAmoebaApp')
             //Handle log in through Facebook.
             Parse.FacebookUtils.logIn("public_profile,user_friends,email", {
                 success: function(user) {
+                    $rootScope.sessionUser = user;
                     if (!user.existed()) {
                         FB.api('/me', 'get', {fields: "first_name, last_name"}, function(response) {
                             if (!response.error) {
@@ -27,6 +27,8 @@ angular.module('myAmoebaApp')
                                     },
                                     error: function(userAgain, error) {
                                         console.log(error.message);
+                                        $scope.loginStateMessage = "There was a problem: " + error.message;
+                                        $scope.$apply();
                                     }
                                 }); 
                             }
@@ -37,7 +39,8 @@ angular.module('myAmoebaApp')
                     }
                 },
                 error: function(user, error) {
-                    
+                    $scope.loginStateMessage = "There was a problem: " + error.message;
+                    $scope.$apply();
                 }
             });
         };

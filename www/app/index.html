@@ -48,16 +48,37 @@
               js.src = "//connect.facebook.net/en_US/sdk.js";
               fjs.parentNode.insertBefore(js, fjs);
           }(document, 'script', 'facebook-jssdk'));*/
+
+          Parse.initialize("iLnBp9fs6Rt8bT4aFWZdiVShVs0fZuxhbpyh20UX", "UCNtTlpwG06wLcXBhY8YwlScUndCt3jKsx4VHY6H");
+
+          window.fbAsyncInit = function() {
+              console.log("Facebook SDK downloaded. Attempting to initialize Facebook...");
+              console.log("Initializing Facebook.");
+              Parse.FacebookUtils.init({
+                  appId         : '266345616902311',
+                  cookie        : true,
+                  xfbml         : true,
+                  version       : 'v2.0'
+              });
+          };
+          
+          console.log("Loading Facebook SDK.");
+          (function(d, s, id){
+              var js, fjs = d.getElementsByTagName(s)[0];
+              if (d.getElementById(id)) {return;}
+              js = d.createElement(s); js.id = id;
+              js.src = "//connect.facebook.net/en_US/sdk.js";
+              fjs.parentNode.insertBefore(js, fjs);
+          }(document, 'script', 'facebook-jssdk'));
       </script>
 
     <!-- Add your site or application content here -->
     <div class="container">
       <div class="header">
-        <!--ul class="nav nav-pills pull-right">
-          <li class="active"><a ng-href="#">Home</a></li>
-          <li><a ng-href="#/about">About</a></li>
-          <li><a ng-href="#">Contact</a></li>
-        </ul-->
+        <ul class="nav nav-pills pull-right">
+          <li><a ng-href="#">Home</a></li>
+          <li><a ng-href="#/inbox">Incoming Amoebae</a></li>
+        </ul>
         <h3 class="text-muted">My Amoeba!</h3>
       </div>
 

@@ -59,6 +59,15 @@ angular.module('MyAmoebaModels', []).
                 this.set("recipient", val);
             }
         });
+
+        Object.defineProperty(Amoeba.prototype, "isDead", {
+            get: function() {
+                return this.get("isDead");
+            },
+            set: function(val) {
+                this.set("isDead", val);
+            }
+        });
         
         return Amoeba;
     }).
