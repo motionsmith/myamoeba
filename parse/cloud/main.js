@@ -110,6 +110,7 @@ Parse.Cloud.define("getAncestors", function(request, response) {
 				bScore = b.get('totalFriends') / b.get('numAncestors');
 				aScore = a.get('totalFriends') / a.get('numAncestors');
 				return bScore - aScore;
+			});
 		}
 		else {
 			result = result.sort(function(a,b) { return b['createdAt'] - a['createdAt']});
