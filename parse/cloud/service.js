@@ -15,8 +15,8 @@ var getAncestors = function(accumulator, amoebaId) {
 			parentB = node.get('parentB');
     		accumulator.push(node);
     		
-
-    		if (parentA === undefined || parentB === undefined) {
+            // TODO: Add guards for circular references.
+    		if (parentA === undefined && parentB === undefined) {
 	    		promise.resolve(accumulator);
 	   		}
 	   		else {
@@ -67,6 +67,7 @@ var offspring = function(accumulator, amoebaId) {
     var query = Parse.Query.or(q1, q2);
  
     query.find().then(function(results) {
+        // TODO: add guards for circular reference case.
         if (results.length == 0) {
             promise.resolve(accumulator);
         }
