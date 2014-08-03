@@ -2,7 +2,7 @@
  * This recursively queries for Amoeba parents.
  * accumulator: an array where Amoeba's are accumulated.
  */
-var getAncestors = function(accumulator, amoebaId) {
+var getAncestors = function(accumulator, amoebaId, limit) {
 
 	var promise = new Parse.Promise();
 
@@ -21,13 +21,13 @@ var getAncestors = function(accumulator, amoebaId) {
             // TODO: Add guards for circular references.
    		    promises = [];
    		    if (parentA !== undefined) {
-   		    	promises.push(getAncestors(accumulator, parentA.id));	   		    	
+   		    	promises.push(getAncestors(accumulator, parentA.id, limit));	   		    	
    		    }
    		    if (parentB !== undefined) {
-   		    	promises.push(getAncestors(accumulator, parentB.id));	   		    	
+   		    	promises.push(getAncestors(accumulator, parentB.id, limit));	   		    	
    		    }
 
-            if (promises.length < 1) {
+            if (promises.length < 1 || accumulator.length >= limit) {
                 promise.resolve(accumulator);
             }
             else {

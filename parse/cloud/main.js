@@ -35,7 +35,7 @@ Parse.Cloud.define("getAncestors", function(request, response) {
 
 	if (isNaN(limit))  {limit = 25};
 
-	service.getAncestors([], request.params.amoebaId).then(function(result) {
+	service.getAncestors([], request.params.amoebaId, limit).then(function(result) {
 
 		if (request.params.orderBy && request.params.orderBy === 'score') {
 			result = result.sort(function(a,b) { 
