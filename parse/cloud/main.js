@@ -154,11 +154,13 @@ var getAncestorsX = function(accumulator, amoebaId) {
         {
 
 	        for (x in results) {
-	        	accumulator[amoebaId] = results[x];
+	        	result = results[x];
+	        	accumulator[amoebaId] = result;
 
 	        	var promises = [];
 	        	parentA = result.get('parentA');
 	        	parentB = result.get('parentB');
+
 
 	        	if (parentA) {
 	            	promises.push(getAncestorsX(accumulator, parentA.id));
@@ -170,7 +172,7 @@ var getAncestorsX = function(accumulator, amoebaId) {
 
 	        }
 
-            promise = Parse.Promise.when(promises);
+            return Parse.Promise.when(promises);
         }
     }, function(error) {
         promise.reject(error);
