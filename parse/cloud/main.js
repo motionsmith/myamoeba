@@ -10,6 +10,12 @@ Parse.Cloud.define("hello", function(request, response) {
 });
 
 
+Parse.Cloud.define("getOffspring", function(request, response) {
+	accumulator = [];
+	service.offspring(accumulator, request.params.amoebaId).then(function(result) {
+		response.success(result);
+	});
+});
 
 
 /*
