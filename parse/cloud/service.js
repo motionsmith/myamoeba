@@ -6,42 +6,51 @@ var getAncestors = function(accumulator, amoebaId) {
 
 	var promise = new Parse.Promise();
 
-    var query = new Parse.Query("AmoebaId");
+    var query = new Parse.Query("Amoeba");
  
     query.get(amoebaId).then(
     	function(node) {
 
+            console.log("AmoebaId: " + amoebaId + ", " + JSON.stringify(node));
+
+            console.log("result node: " + JSON.stringify(node));
 			parentA = node.get('parentA');
 			parentB = node.get('parentB');
     		accumulator.push(node);
     		
             // TODO: Add guards for circular references.
-    		if (parentA === undefined && parentB === undefined) {
-	    		promise.resolve(accumulator);
-	   		}
-	   		else {
+   		    promises = [];
+   		    if (parentA !== undefined) {
+   		    	promises.push(getAncestors(accumulator, parentA.id));	   		    	
+   		    }
+   		    if (parentB !== undefined) {
+   		    	promises.push(getAncestors(accumulator, parentB.id));	   		    	
+   		    }
 
-	   		    promises = [];
-	   		    if (parentA !== undefined) {
-	   		    	promises.push(getAncestors(accumulator, parentA.id));	   		    	
-	   		    }
-	   		    if (parentB !== undefined) {
-	   		    	promises.push(getAncestors(accumulator, parentB.id));	   		    	
-	   		    }
-	   			// Recursive calls for parents, run in parallel via Parse.Promise.when method.
+            if (promises.length < 1) {
+                promise.resolve(accumulator);
+            }
+            else {
+       			// Recursive calls for parents, run in parallel via Parse.Promise.when method.
     			Parse.Promise.when(promises).then(
-    				function(a,b) {
+    				function(a, b) {
     					promise.resolve(accumulator);
     				},
     				function(error) {
     				    promise.reject(error);
     				});
-	   		}
-
+            }
     	},
     	function(error) {
-    		promise.reject(error);
-    });
+            console.log("error: " + JSON.stringify(error));
+            if (error.code == 101) {
+                console.log("AmoebaId: " + amoebaId + " not found, so resolving.");
+                promise.resolve(accumulator);
+            }
+            else {
+        		promise.reject(error);
+            }
+        });
 
     return promise;
 
