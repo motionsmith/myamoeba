@@ -1,0 +1,14 @@
+<div ng-show="onboardingReady">
+	<h1>Okay {{sessionUser.firstName}}, roll up your sleeves.</h1>
+	<h2>Give yourself a surname.</h2>
+	<p>This surname will be given to all amoebae that you breed.</p>
+	<div>
+		<input type="text" placeholder="surname" ng-model="surname">
+	</div>
+	<div>
+		<button type="button" class="btn btn-success" ng-click="submit()">Submit</button>
+	</div>
+	<div>
+		<p>{{onboardingStateMessage}}</p>
+	</div>
+</div>

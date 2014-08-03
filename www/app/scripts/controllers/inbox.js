@@ -35,12 +35,42 @@ angular.module('myAmoebaApp')
                 }
             });
         };
+
+        $scope.requestAmoebae = function () {
+            var recipients = [];
+
+            FB.api('/me/friends', function(response) {
+                if (response && !response.error) {
+                    $scope.recipients = response.data;
+                    for (var i = 0; i < response.data.length; i++) {
+                        recipients[i] = response.data[i].id;
+                    }
+
+                    FB.ui( {
+                        method: 'apprequests',
+                        message: 'Hey, can you send me some amoebae? I\'d like to start breeding.',
+                        to: recipients
+                    },
+                    function(response) {
+
+                    });
+
+                }
+                else if (response.error) {
+                    console.log("Could not get friends: " + response.error.message);
+                }
+                else {
+                     console.log("Could not get friends: Unknown error.");
+                }
+            });
+        };
         
         if ($rootScope.sessionUser) {
              //Get any amoebae that have been sent to you.
             var incomingAmoebaQuery = new Parse.Query(Amoeba);
             incomingAmoebaQuery.equalTo("recipient", $rootScope.sessionUser);
             incomingAmoebaQuery.include("owner");
+            incomingAmoebaQuery.include('breeder');
             incomingAmoebaQuery.find({
                 success: function(results) {
                     $scope.incomingAmoebae = results;

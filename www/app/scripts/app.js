@@ -24,6 +24,10 @@ angular
             templateUrl: 'views/inbox.html',
             controller: 'InboxCtrl'
         })
+        .when('/onboarding', {
+            templateUrl: 'views/onboarding.html',
+            controller: 'OnboardingCtrl'
+        })
         .otherwise({
             redirectTo: '/'
         });
@@ -33,12 +37,13 @@ angular
       console.log("Angular run");
       $rootScope.isFbReady = false;
       Parse.initialize("iLnBp9fs6Rt8bT4aFWZdiVShVs0fZuxhbpyh20UX", "UCNtTlpwG06wLcXBhY8YwlScUndCt3jKsx4VHY6H");
+      $rootScope.fbAppId = '266061040264102';
 
           window.fbAsyncInit = function() {
               console.log("Facebook SDK downloaded. Attempting to initialize Facebook...");
               console.log("Initializing Facebook.");
               Parse.FacebookUtils.init({
-                  appId         : '266345616902311',
+                  appId         : $rootScope.fbAppId,
                   cookie        : true,
                   xfbml         : true,
                   version       : 'v2.0'

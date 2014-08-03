@@ -2,7 +2,94 @@
 
 angular.module('myAmoebaApp')
     .controller('MainCtrl', ["$scope", "$location", 'MyAmoebaUser', 'Amoeba', '$rootScope', function ($scope, $location, MyAmoebaUser, Amoeba, $rootScope) {
+        
+        var fetchRecipients = function () {
+            console.log("Fetch recipients");
+            //Get users that this user can send an amoeba to.
+            FB.api('/me/friends', function(response) {
+                if (response && !response.error) {
+                    $scope.recipients = response.data;
+                    $scope.sendStateMessage = '';
+                    if ($scope.recipients.length > 0) {
+                        $scope.selectedRecipient = $scope.recipients[0];
+                    }
+
+                    //Update the number of friends this user has in the game.
+                    //This affects the amoeba fame.
+                    $rootScope.sessionUser.numFriends = $scope.recipients.length;
+                    $rootScope.sessionUser.save();
+
+                    $scope.$apply();
+                }
+                else if (response.error) {
+                    $scope.sendStateMessage = "Could not get friends: " + response.error.message;
+                    $scope.$apply();
+                }
+                else {
+                    $scope.sendStateMessage = "Could not get friends. Unknown error.";
+                    $scope.$apply();
+                }
+            });
+        };
+
         $scope.ownerAmoebaeLoaded = false;
+
+        if (!$rootScope.sessionUser || !$rootScope.sessionUser.authenticated()) {
+             $location.url("/login");
+        }
+
+        if (!$rootScope.sessionUser.surname) {
+            $location.url('/onboarding');
+        }
+
+        if ($rootScope.sessionUser) {
+            
+             //Get the amoebae that this user owns.
+            var myAmoebaeQuery = new Parse.Query(Amoeba);
+            myAmoebaeQuery.equalTo("owner", $rootScope.sessionUser);
+            myAmoebaeQuery.notEqualTo("isDead", true);
+            myAmoebaeQuery.include("owner");
+            myAmoebaeQuery.include("breeder");
+            myAmoebaeQuery.include("parentA");
+            myAmoebaeQuery.include("parentB");
+            myAmoebaeQuery.include("recipient");
+            myAmoebaeQuery.find({
+                success: function(results) {
+                    $scope.myAmoebae = results;
+                    $scope.selectedAmoeba = $scope.myAmoebae[0];
+                    $scope.breedWithAmoeba = $scope.myAmoebae[0];
+                    $scope.ownerAmoebaeLoaded = true;
+                    $scope.$apply();
+                },
+                error: function(error) {
+                    console.log(error.message);
+                }
+            });
+            
+            //Get any amoebae that have been sent to you.
+            var incomingAmoebaQuery = new Parse.Query(Amoeba);
+            incomingAmoebaQuery.equalTo("recipient", $rootScope.sessionUser);
+            incomingAmoebaQuery.count({
+                success: function(count) {
+                    $scope.numIncomingAmoebae = count;
+                    $scope.$apply();
+                },
+                error: function(results, error) {
+                    console.log(error.message);
+                }
+            });
+                    
+            
+            if ($rootScope.isFbReady)
+            {
+                console.log("Fetching recipients");
+               fetchRecipients();
+            } else {
+                console.log("Cannot fetch recipients. FB.init() has not completed.");
+                $rootScope.$on("onFbInitialized", fetchRecipients);
+            }
+            
+        }
         
         $scope.handleLogoutClick = function() {
             MyAmoebaUser.logOut();
@@ -31,9 +118,38 @@ angular.module('myAmoebaApp')
                 success: function(babyAmoebaAgain) {
                     $scope.breedStateMessage = 'Hark! A new amoeba is born!';
                     $scope.$apply();
+
+                    //Create the amoeba on FB
+                    /*FB.api('me/objects/vulcaninc:amoeba',
+                        'post',
+                        {
+                            object: {
+                                app_id: $rootScope.fbAppId,
+                                url: 'http://myamoeba.parseapp.com/amoeba/' + babyAmoeba.id,
+                                title: babyAmoeba.getFullName()
+                            }
+                        },
+                        function (response) {
+                            if (!response.error) {
+                                $scope.breedStateMessage = "The birth was a success.";
+                                $scope.$apply();
+                            } else {
+                                $scope.breedStateMessage = "Facebook error: " + response.error.message;
+                                $scope.$apply();
+                                if (response.error.code == 200) {
+                                    FB.login(function(response) {
+                                        
+                                    },
+                                    {
+                                        scope: 'publish_actions'
+                                    });
+                                }
+                            }
+                        }
+                    );*/
                 },
                 error: function(babyAmoebaAgain, error) {
-                    $scope.breedStateMessage = error.message;
+                    $scope.breedStateMessage = "Parse error: " + error.message;
                     $scope.$apply();
                 }
             });
@@ -110,97 +226,45 @@ angular.module('myAmoebaApp')
                     $scope.sendStateMessage = error.message;
                 }
             });
-        }
+        };
 
         $scope.getAncestors = function() {
+           if ($scope.ancestors) {
+                $scope.ancestors.length = 0;
+           }
             Parse.Cloud.run('getAncestors', {"amoebaId": $scope.selectedAmoeba.id}, {
                 success: function(result) {
                     $scope.ancestors = result.ancestors;
+                    $scope.$apply();
                 },
                 error: function(result, error) {
                     console.log(error.message);
                 },
             });
-        }
-        
-        var fetchRecipients = function () {
-            console.log("Fetch recipients");
-            //Get users that this user can send an amoeba to.
-            FB.api('/me/friends', function(response) {
-                if (response && !response.error) {
-                    $scope.recipients = response.data;
-                    $scope.sendStateMessage = '';
-                    if ($scope.recipients.length > 0) {
-                        $scope.selectedRecipient = $scope.recipients[0];
-                    }
+        };
 
-                    //Update the number of friends this user has in the game.
-                    //This affects the amoeba fame.
-                    $rootScope.sessionUser.numFriends = $scope.recipients.length;
-                    $rootScope.sessionUser.save();
+        $scope.facebookInvite = function () {
+            FB.ui( {
+                method: 'apprequests',
+                message: 'I want to infect you with some amoebae that I\'m breeding. Lollers, I know that sounds bad, but trust me!'
+            },
+            function(response) {
 
-                    $scope.$apply();
-                }
-                else if (response.error) {
-                    $scope.sendStateMessage = "Could not get friends: " + response.error.message;
-                    $scope.$apply();
-                }
-                else {
-                    $scope.sendStateMessage = "Could not get friends. Unknown error.";
-                    $scope.$apply();
-                }
             });
         };
-        
-        if ($rootScope.sessionUser) {
-            
-             //Get the amoebae that this user owns.
-            var myAmoebaeQuery = new Parse.Query(Amoeba);
-            myAmoebaeQuery.equalTo("owner", $rootScope.sessionUser);
-            myAmoebaeQuery.notEqualTo("isDead", true);
-            myAmoebaeQuery.include("owner");
-            myAmoebaeQuery.include("breeder");
-            myAmoebaeQuery.include("parentA");
-            myAmoebaeQuery.include("parentB");
-            myAmoebaeQuery.include("recipient");
-            myAmoebaeQuery.find({
-                success: function(results) {
-                    $scope.myAmoebae = results;
-                    $scope.selectedAmoeba = $scope.myAmoebae[0];
-                    $scope.breedWithAmoeba = $scope.myAmoebae[0];
-                    $scope.ownerAmoebaeLoaded = true;
-                    $scope.$apply();
-                },
-                error: function(error) {
-                    console.log(error.message);
-                }
-            });
-            
-            //Get any amoebae that have been sent to you.
-            var incomingAmoebaQuery = new Parse.Query(Amoeba);
-            incomingAmoebaQuery.equalTo("recipient", $rootScope.sessionUser);
-            incomingAmoebaQuery.count({
-                success: function(count) {
-                    $scope.numIncomingAmoebae = count;
-                    $scope.$apply();
-                },
-                error: function(results, error) {
-                    console.log(error.message);
-                }
-            });
-                    
-            
-            if ($rootScope.isFbReady)
-            {
-                console.log("Fetching recipients");
-               fetchRecipients();
-            } else {
-                console.log("Cannot fetch recipients. FB.init() has not completed.");
-                $rootScope.$on("onFbInitialized", fetchRecipients);
+
+        $scope.requestAmoebae = function () {
+            var fbRecipientIds = [];
+            for (var i = 0; i < $scope.recipients.length; i++) {
+                fbRecipientIds[i] = $scope.recipients[i].id;
             }
-            
-        } else {
-            console.log("Routing to login screen...");
-            $location.url("/login");
-        }
+            FB.ui( {
+                method: 'apprequests',
+                message: 'Hey, can you send me some amoebae? I\'d like to start breeding.',
+                to: fbRecipientIds
+            },
+            function(response) {
+
+            });
+        };
     }]);

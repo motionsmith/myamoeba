@@ -2,6 +2,13 @@ angular.module('MyAmoebaModels', []).
     factory('Amoeba', function() {
         var Amoeba = Parse.Object.extend('Amoeba', {
             //Instance methods
+            getFullName: function() {
+                var s = this.get('breeder').get('surname');
+                if (s == 'undefined') {
+                    s = '';
+                }
+                return '~' + this.get('name') + ' ' + s;
+            }
         }, {
             //Class methods
         });
@@ -85,6 +92,15 @@ angular.module('MyAmoebaModels', []).
             }
         });
         
+        Object.defineProperty(User.prototype, "lastName", {
+            get: function() {
+                return this.get("lastName");
+            },
+            set: function(val) {
+                this.set("lastName", val);
+            }
+        });
+        
         Object.defineProperty(User.prototype, "username", {
             get: function() {
                 return this.get("username");
@@ -100,6 +116,15 @@ angular.module('MyAmoebaModels', []).
             },
             set: function(val) {
                 this.set("numFriends", val);
+            }
+        });
+        
+        Object.defineProperty(User.prototype, "surname", {
+            get: function() {
+                return this.get("surname");
+            },
+            set: function(val) {
+                this.set("surname", val);
             }
         });
         

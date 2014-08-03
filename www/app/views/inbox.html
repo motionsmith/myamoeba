@@ -1,5 +1,6 @@
 <h1>Get infected.</h1>
 <div class="container">
+    <h2>Amoebae Inbox</h2>
     <div>
         {{inboxStateMessage}}
     </div>
@@ -9,7 +10,7 @@
     <ul>
         <li ng-repeat="amoeba in incomingAmoebae">
             <div>
-                <strong>{{amoeba.owner.username}}</strong> sent you {{amoeba.name}}.
+                <strong>{{amoeba.owner.username}}</strong> sent you {{amoeba.getFullName()}}.
             </div>
             <div>
                 <button type="button" class="btn btn-success" ng-click="accept($index)">Accept</button>
@@ -17,4 +18,9 @@
             </div>
         </li>
     </ul>
+    <h2>Request more amoebae</h2>
+    <p>Get some amoebae from your friends.</p>
+    <div>
+        <button type="button" class="btn btn-success" ng-click="requestAmoebae()">Request Amoebae</button>
+    </div>
 </div>
