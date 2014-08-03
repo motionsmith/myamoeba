@@ -52,7 +52,7 @@ var getAncestors = function(accumulator, amoebaId) {
 exports.getAncestors = getAncestors;
 
 
-var offspring = function(accumulator, nodeId) {
+var offspring = function(accumulator, amoebaId) {
 
  
     var promise = new Parse.Promise();
@@ -60,7 +60,7 @@ var offspring = function(accumulator, nodeId) {
     var Amoeba = Parse.Object.extend('Amoeba');
 
     var amoeba = new Amoeba();
-    amoeba.id = nodeId;
+    amoeba.id = amoebaId;
 
     q1 = new Parse.Query("Amoeba").equalTo('parentA', amoeba);
     q2 = new Parse.Query("Amoeba").equalTo('parentB', amoeba);
