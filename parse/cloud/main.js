@@ -1,92 +1,54 @@
 
-// Use Parse.Cloud.define to define as many cloud functions as you want.
-// For example:
-Parse.Cloud.define("hello", function(request, response) {
-  response.success("Hello world!");
-});
+/*
+ * This recursively queries for Amoeba parents.
+ * accumulator: an array where Amoeba's are accumulated.
+ */
+var getAncestors = function(accumulator, amoebaId) {
 
-Parse.Cloud.define("nodes", function(request, response) {
-	var query = new Parse.Query("Node");
-        query.include("parents");
-	query.find({
-		success: function (results) {
-			response.success(results);
-		}
-		,
-		error: function() { 
-			response.error("Something went wrong.");
-		}
-	});
-});
+	var promise = new Parse.Promise();
 
+    var query = new Parse.Query("AmoebaId");
+ 
+    query.get(amoebaId).then(
+    	function(node) {
 
+			parentA = node.get('parentA');
+			parentB = node.get('parentB');
+    		accumulator.push(node);
+    		
 
+    		if (parentA === undefined || parentB === undefined) {
+	    		promise.resolve(accumulator);
+	   		}
+	   		else {
 
-var getAmoebaAndAncestors = function(accumulator, nodeIds, limit, callback) {
+	   		    promises = [];
+	   		    if (parentA !== undefined) {
+	   		    	promises.push(getAncestors(accumulator, parentA.id));	   		    	
+	   		    }
+	   		    if (parentB !== undefined) {
+	   		    	promises.push(getAncestors(accumulator, parentB.id));	   		    	
+	   		    }
+	   			// Recursive calls for parents, run in parallel via Parse.Promise.when method.
+    			Parse.Promise.when(promises).then(
+    				function(a,b) {
+    					console.log("Inside parallel promise success");
+    					promise.resolve(accumulator);
+    				},
+    				function(error) {
+    					console.log("Inside parallel promise error");
+    				    promise.reject(error);
+    				});
+	   		}
 
-	var query = new Parse.Query("Amoeba");
-	query.containedIn("objectId", nodeIds);
-	query.include("parentA");
-	query.include("parentB");
-	query.include("breeder");
-	query.include("owner");
+    	},
+    	function(error) {
+    		promise.reject(error);
+    });
 
-	// If handed an empty list of NodeIds, then return the accumulated result.
-	if (nodeIds.length<1) {
-		callback(accumulator);
-	}
+    return promise;
 
-	console.log("In getNodeAndAncestors: " + nodeIds);
-	query.find({
-		success: function (results) {
-
-
-			console.log("Parsing results: " + JSON.stringify(results));
-
-			nextNodeIds = [];
-
-			for (i in results) {
-
-				var node = results[i];
-				parentA = node.get('parentA');
-				parentB = node.get('parentB');
-
-				if (parentA === undefined || parentB === undefined) {
-					break;
-				}
-				console.log("NodeId: " + node.id + ", Parents: " + [parentA, parentB]);
-				// accumulator[node.id] = results[i]; //[parentA, parentB];
-				accumulator.push(results[i]);
-				nextNodeIds.push(parentA.id);
-				nextNodeIds.push(parentB.id);
-
-			}
-
-			if (accumulator.length >= limit+1) {
-				callback(accumulator);
-			}
-
-			getAmoebaAndAncestors(accumulator, nextNodeIds, limit, callback);
-
-		}
-		,
-		error: function() { 
-			response.error("Something went wrong.");
-		}
-	});
-
-}
-
-// getAncestors is the primary of a tail-recursive call to get the Nodes for all ancestors.
-var getAncestors = function(nodeId, limit, callback) {
-	accumulator= [];
-	nodeIds = [];
-	nodeIds.push(nodeId);
-	getAmoebaAndAncestors(accumulator, nodeIds, limit, callback);
-
-
-}
-
+} 
 
 /*
  * POST
@@ -105,7 +67,8 @@ Parse.Cloud.define("getAncestors", function(request, response) {
 
 	if (isNaN(limit))  {limit = 25};
 
-	getAncestors(request.params.amoebaId, limit, function(result) {
+	accumulator = [];
+	getAncestors(accumulator, request.params.amoebaId, limit, function(result) {
 
 		if (request.params.orderBy && request.params.orderBy === 'score') {
 			result = result.sort(function(a,b) { 
@@ -133,93 +96,6 @@ Parse.Cloud.define("getAncestors", function(request, response) {
 	});
 
 });
-
-var getAncestorsX = function(accumulator, amoebaId) {
-    console.log("Enter getAncestorsX")
-
-    var query = new Parse.Query("Amoeba").equalTo('objectId', amoebaId);
-    query.include("parentA");
-    query.include("parentB");
-    query.include("owner");
-    query.include("breeder");
-
-    var promise = new Parse.Promise();
-
-    query.find().then(function(results) {
-        if (results.length == 0)
-        {
-            promise.resolve(accumulator);
-        }
-        else
-        {
-
-	        for (x in results) {
-	        	result = results[x];
-	        	accumulator[amoebaId] = result;
-
-	        	var promises = [];
-	        	parentA = result.get('parentA');
-	        	parentB = result.get('parentB');
-
-
-	        	if (parentA) {
-	            	promises.push(getAncestorsX(accumulator, parentA.id));
-	            }
-
-	            if (parentB) {
-	            	promises.push(getAncestorsX(accumulator, parentB.id));
-	            }
-
-	        }
-
-            return Parse.Promise.when(promises);
-        }
-    }, function(error) {
-        promise.reject(error);
-    });
-
-    return promise;
-}
-
-
-Parse.Cloud.define("getAncestorsX", function(request, response) {
-
-	limit = parseInt(request.params.limit);
-
-	if (isNaN(limit))  {limit = 25};
-
-	accumulator = {};
-	getAncestorsX(accumulator, request.params.amoebaId).then(function(result) {
-
-		// if (request.params.orderBy && request.params.orderBy === 'score') {
-		// 	result = result.sort(function(a,b) { 
-		// 		bScore = b.get('totalFriends') / b.get('numAncestors');
-		// 		aScore = a.get('totalFriends') / a.get('numAncestors');
-		// 		return bScore - aScore;
-		// 	});
-		// }
-		// else {
-		// 	result = result.sort(function(a,b) { return b['createdAt'] - a['createdAt']});
-		// }
-
-		// // Remove self from ancestor list.
-		// selfi = -1;
-		// for (x in result) {
-		// 	if (result[x].id == request.params.amoebaId) {
-		// 		selfi = x;
-		// 	}
-		// }
-
-		// // Stash self in the result, as sibling to ancestors.
-		// self = selfi > -1 ? result.splice(selfi, 1)[0] : null;
-
-		// response.success({"count":result.length, "self": self, "ancestors": result});
-		response.success(result);
-
-	});
-
-});
-
 
 
 Parse.Cloud.beforeSave("Amoeba", function(request, response) {
@@ -264,3 +140,4 @@ Parse.Cloud.beforeSave("Amoeba", function(request, response) {
 
     });
 });
+
