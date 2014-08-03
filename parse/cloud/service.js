@@ -31,11 +31,9 @@ var getAncestors = function(accumulator, amoebaId) {
 	   			// Recursive calls for parents, run in parallel via Parse.Promise.when method.
     			Parse.Promise.when(promises).then(
     				function(a,b) {
-    					console.log("Inside parallel promise success");
     					promise.resolve(accumulator);
     				},
     				function(error) {
-    					console.log("Inside parallel promise error");
     				    promise.reject(error);
     				});
 	   		}
