@@ -11,7 +11,7 @@
 		<h4>Ancestors<span ng-show="ancestors.length > 0"> ({{ancestors.length}})</span></h4>
 		<div ng-show="ancestorsReady">
 			<p ng-show="ancestors.length == 0">
-				{{amoeba.name}} has no ancestors.
+				{{amoeba.name}} has no ancestors!
 			</p>
 			<ul>
 				<li ng-repeat="ancestor in ancestors"><a href="#/amoeba/{{ancestor.id}}">{{ancestor.getFullName()}}</a></li>
