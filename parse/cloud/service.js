@@ -9,7 +9,8 @@ var getAncestors = function(accumulator, amoebaId, limit) {
 	var promise = new Parse.Promise();
 
     var query = new Parse.Query("Amoeba");
- 
+    query.include('breeder');  // ...because the UI wants amoeba.breeder.surname
+
     if (amoebaId in accumulator) {
         promise.resolve(accumulator);
         return promise;
@@ -18,9 +19,6 @@ var getAncestors = function(accumulator, amoebaId, limit) {
     query.get(amoebaId).then(
     	function(node) {
 
-            console.log("AmoebaId: " + amoebaId + ", " + JSON.stringify(node));
-
-            console.log("result node: " + JSON.stringify(node));
 			parentA = node.get('parentA');
 			parentB = node.get('parentB');
     		accumulator[node.id] = node;
