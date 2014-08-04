@@ -1,3 +1,5 @@
+var _ = require('underscore');
+
 /*
  * This recursively queries for Amoeba parents.
  * accumulator: an array where Amoeba's are accumulated.
@@ -12,7 +14,7 @@ var getAncestors = function(accumulator, amoebaId, limit) {
         promise.resolve(accumulator);
         return promise;
     }
-    
+
     query.get(amoebaId).then(
     	function(node) {
 
@@ -32,7 +34,7 @@ var getAncestors = function(accumulator, amoebaId, limit) {
    		    	promises.push(getAncestors(accumulator, parentB.id, limit));	   		    	
    		    }
 
-            if (promises.length < 1 || accumulator.length >= limit) {
+            if (promises.length < 1 || _.keys(accumulator).length >= limit) {
                 promise.resolve(accumulator);
             }
             else {
