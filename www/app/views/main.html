@@ -5,6 +5,9 @@
         <a href="#/inbox"><button type="button" class="btn btn-success" ng-href="/inbox">Check them out</button></a>
     </p>
 </div>
+<div ng-show="myAmoebae.length == 1">
+    <p><strong>You cannot breed your amoebae.</strong> You need two amoebae to breed. <a ng-click="requestAmoebae()">Ask your friends for some.</a></p>
+</div>
 <div ng-show="ownerAmoebaeLoaded && myAmoebae.length > 0">
     <p>
         Select an Amoeba:
