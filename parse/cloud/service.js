@@ -77,6 +77,7 @@ var offspring = function(accumulator, amoebaId) {
     q1 = new Parse.Query("Amoeba").equalTo('parentA', amoeba);
     q2 = new Parse.Query("Amoeba").equalTo('parentB', amoeba);
     var query = Parse.Query.or(q1, q2);
+    query.include('breeder');
  
     query.find().then(function(results) {
         // TODO: add guards for circular reference case.
@@ -88,24 +89,29 @@ var offspring = function(accumulator, amoebaId) {
             promises = [];
 
             for (x in results) {
-                accumulator.push(results[x]);
-                promises.push(offspring(accumulator, results[x].id));
+                a = results[x];
+                if (a.id in accumulator) { continue; }
+                accumulator[a.id] = a;
+                promises.push(offspring(accumulator, a.id));
             }
 
-            Parse.Promise.when(promises).then(
-                function() {
-                    promise.resolve(accumulator);
-                },
-                function(error) {
-                    promise.reject(error);
-                });
+            if (promises.length == 0) {
+                promise.resolve(accumulator);
+            }
+            else {
+                Parse.Promise.when(promises).then(
+                    function() {
+                        promise.resolve(accumulator);
+                    },
+                    function(error) {
+                        promise.reject(error);
+                    });
+            }
         }
     },
     function(error) {
         promise.reject(error);
     });
-
-
 
     return promise;
 
