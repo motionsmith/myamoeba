@@ -1,6 +1,30 @@
 <div ng-show="pageReady">
 	<h1>Meet {{amoeba.getFullName()}}.</h1>
 	<p ng-show="amoebaStatusMessage">{{amoebaStatusMessage}}</p>
+	<h4>Owner</h4>
+	<p>{{amoeba.owner.username}}</p>
+	<h4>Breeder</h4>
+	<p>{{amoeba.breeder.username}}</p>
+	<h4>Birthday</h4>
+	<p>{{amoeba.createdAt | date: 'mediumDate'}}</p>
+	<div>
+		<h4>Ancestors</h4>
+		<div ng-show="ancestors">
+
+		</div>
+		<div ng=hide="ancestors">
+			Loading ancestors...
+		</div>
+	</div>
+	<div>
+		<h4>Descendents</h4>
+		<div ng-show="descendents">
+
+		</div>
+		<div ng-hide="descendents">
+			Loading descendents...
+		</div>
+	</div>
 </div>
 <div ng-hide="pageReady">
 	Loading...
