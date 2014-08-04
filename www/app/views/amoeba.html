@@ -10,19 +10,23 @@
 	<div>
 		<h4>Ancestors</h4>
 		<div ng-show="ancestors">
-
+			<ul>
+				<li ng-repeat="ancestor in ancestors"><a href="#/amoeba/{{ancestor.id}}">{{ancestor.getFullName()}}</a></li>
+			</ul>
 		</div>
-		<div ng=hide="ancestors">
+		<div ng-hide="ancestors">
 			Loading ancestors...
 		</div>
 	</div>
 	<div>
-		<h4>Descendents</h4>
+		<h4>Offspring</h4>
 		<div ng-show="descendents">
-
+			<ul>
+				<li ng-repeat="descendent in descendents"><a href="#/amoeba/{{descendent.id}}">{{descendent.getFullName()}}</a></li>
+			</ul>
 		</div>
 		<div ng-hide="descendents">
-			Loading descendents...
+			Loading offspring...
 		</div>
 	</div>
 </div>
