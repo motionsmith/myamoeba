@@ -8,6 +8,11 @@ var getAncestors = function(accumulator, amoebaId, limit) {
 
     var query = new Parse.Query("Amoeba");
  
+    if (amoebaId in accumulator) {
+        promise.resolve(accumulator);
+        return promise;
+    }
+    
     query.get(amoebaId).then(
     	function(node) {
 
@@ -16,7 +21,7 @@ var getAncestors = function(accumulator, amoebaId, limit) {
             console.log("result node: " + JSON.stringify(node));
 			parentA = node.get('parentA');
 			parentB = node.get('parentB');
-    		accumulator.push(node);
+    		accumulator[node.id] = node;
     		
             // TODO: Add guards for circular references.
    		    promises = [];

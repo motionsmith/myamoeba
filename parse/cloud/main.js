@@ -2,6 +2,7 @@
 
 var service = require('cloud/service.js');
 triggers = require('cloud/triggers.js');
+var _ = require('underscore');
 
 // Use Parse.Cloud.define to define as many cloud functions as you want.
 // For example:
@@ -35,9 +36,13 @@ Parse.Cloud.define("getAncestors", function(request, response) {
 
 	if (isNaN(limit))  {limit = 25};
 
-	service.getAncestors([], request.params.amoebaId, limit).then(function(result) {
+	service.getAncestors({}, request.params.amoebaId, limit).then(function(result) {
 
+		// Expect result to be an object mapping amoebaId to amoeba.
 		if (request.params.orderBy && request.params.orderBy === 'score') {
+
+			result = _.values(result);
+
 			result = result.sort(function(a,b) { 
 
 				tf = b.get('totalFriends');
