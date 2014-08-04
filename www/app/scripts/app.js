@@ -41,7 +41,8 @@ angular
       console.log("Angular run");
       $rootScope.isFbReady = false;
       Parse.initialize("iLnBp9fs6Rt8bT4aFWZdiVShVs0fZuxhbpyh20UX", "UCNtTlpwG06wLcXBhY8YwlScUndCt3jKsx4VHY6H");
-      $rootScope.fbAppId = '266061040264102';
+      //$rootScope.fbAppId = '266061040264102'; //Prod
+      $rootScope.fbAppId = '266345616902311'; //Dev
 
           window.fbAsyncInit = function() {
               console.log("Facebook SDK downloaded. Attempting to initialize Facebook...");
