@@ -4,6 +4,8 @@ angular.module('myAmoebaApp')
     .controller('AmoebaCtrl', ['$scope', '$location', '$rootScope', 'Amoeba', '$routeParams', function ($scope, $location, $rootScope, Amoeba, $routeParams) {
 
         $scope.pageReady = false;
+        $scope.ancestorsReady = false;
+        $scope.descendentsReady = false;
 
         //Get info about this amoeba.
         var amoebaQuery = new Parse.Query(Amoeba);
@@ -28,10 +30,12 @@ angular.module('myAmoebaApp')
         Parse.Cloud.run('getAncestors', {"amoebaId": $routeParams.amoeba}, {
             success: function(result) {
                 $scope.ancestors = result.ancestors;
+                $scope.ancestorsReady = true;
                 $scope.$apply();
             },
             error: function(result, error) {
                 $scope.amoebaStatusMessage = "Problem getting ancestors: " + error.message;
+                $scope.ancestorsReady = true;
                 $scope.$apply();
             },
         });
@@ -40,10 +44,12 @@ angular.module('myAmoebaApp')
         Parse.Cloud.run('getOffspring', {"amoebaId": $routeParams.amoeba}, {
             success: function(result) {
                 $scope.descendents = result;
+                $scope.descendentsReady = true;
                 $scope.$apply();
             },
             error: function(result, error) {
                 $scope.amoebaStatusMessage = "Problem getting offspring: " + error.message;
+                $scope.descendentsReady = true;
                 $scope.$apply();
             },
         });

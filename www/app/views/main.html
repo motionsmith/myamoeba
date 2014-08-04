@@ -11,6 +11,9 @@
         <select ng-model="selectedAmoeba" ng-options="amoeba.getFullName() for amoeba in myAmoebae"></select>
     </p>
     <p>
+        <a href="#/amoeba/{{selectedAmoeba.id}}"><button type="button" class="btn btn-success">More details</button></a>
+    </p>
+    <p>
         <strong>Breeder:</strong> {{selectedAmoeba.breeder.username}}
     </p>
     <p>
@@ -47,14 +50,6 @@
     <p>
         <button type="button" class="btn btn-danger" ng-click="handleKillClick()">Kill {{selectedAmoeba.getFullName()}}</button>
         <span>{{killStateMessage}}</span>
-    </p>
-    <p>
-        <button type="button" class="btn" ng-click="getAncestors()">Get Ancestors</button>
-        <div ng-show="ancestors && ancestors.length > 0">
-            <ul>
-                <li ng-repeat="ancestor in ancestors">{{ancestor.getFullName()}}</li>
-            </ul>
-        </div>
     </p>
 </div>
 <p ng-hide="ownerAmoebaeLoaded">
