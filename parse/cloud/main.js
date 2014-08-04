@@ -39,9 +39,9 @@ Parse.Cloud.define("getAncestors", function(request, response) {
 	service.getAncestors({}, request.params.amoebaId, limit).then(function(result) {
 
 		// Expect result to be an object mapping amoebaId to amoeba.
-		if (request.params.orderBy && request.params.orderBy === 'score') {
+		result = _.values(result);
 
-			result = _.values(result);
+		if (request.params.orderBy && request.params.orderBy === 'score') {
 
 			result = result.sort(function(a,b) { 
 
