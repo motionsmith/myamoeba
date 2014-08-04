@@ -28,6 +28,10 @@ angular
             templateUrl: 'views/onboarding.html',
             controller: 'OnboardingCtrl'
         })
+        .when('/amoeba/:amoeba', {
+          templateUrl: 'views/amoeba.html',
+          controller: 'AmoebaCtrl'
+        })
         .otherwise({
             redirectTo: '/'
         });

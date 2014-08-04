@@ -17,7 +17,7 @@
         <strong>Birthday:</strong> {{selectedAmoeba.createdAt | date: 'mediumDate'}}
     </p>
     <p>
-        <span ng-show="selectedAmoeba.parentA && selectedAmoeba.parentB"><strong>Parents: </strong> {{selectedAmoeba.parentA.name}} and {{selectedAmoeba.parentB.name}}</span>
+        <span ng-show="selectedAmoeba.parentA && selectedAmoeba.parentB"><strong>Parents: </strong> <a href="#/amoeba/{{selectedAmoeba.parentA.id}}">{{selectedAmoeba.parentA.name}}</a> and <a href="#/amoeba/{{selectedAmoeba.parentB.id}}">{{selectedAmoeba.parentB.name}}</a></span>
         <span ng-hide="selectedAmoeba.parentA && selectedAmoeba.parentB">This amoeba does not have parents.
     </p>
     <p>
