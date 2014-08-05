@@ -129,6 +129,34 @@ angular.module('MyAmoebaModels', []).
         });
         
         return User;
+    }).
+    factory('ShareAmoebaRequest', function() {
+        var ShareAmoebaRequest = Parse.Object.extend('ShareAmoebaRequest', {
+            //Instance Methods
+        },
+        {
+            //Class Methods
+        });
+        
+        Object.defineProperty(ShareAmoebaRequest.prototype, "requester", {
+            get: function() {
+                return this.get("requester");
+            },
+            set: function(val) {
+                this.set("requester", val);
+            }
+        });
+        
+        Object.defineProperty(ShareAmoebaRequest.prototype, "requestee", {
+            get: function() {
+                return this.get("requestee");
+            },
+            set: function(val) {
+                this.set("requestee", val);
+            }
+        });
+
+        return ShareAmoebaRequest;
     });
         
         

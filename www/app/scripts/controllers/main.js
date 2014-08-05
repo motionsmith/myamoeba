@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('myAmoebaApp')
-    .controller('MainCtrl', ["$scope", "$location", 'MyAmoebaUser', 'Amoeba', '$rootScope', function ($scope, $location, MyAmoebaUser, Amoeba, $rootScope) {
+    .controller('MainCtrl', ["$scope", "$location", 'MyAmoebaUser', 'Amoeba', '$rootScope', 'ShareAmoebaRequest', function ($scope, $location, MyAmoebaUser, Amoeba, $rootScope, ShareAmoebaRequest) {
         
         var fetchRecipients = function () {
             console.log("Fetch recipients");
@@ -42,6 +42,18 @@ angular.module('myAmoebaApp')
             $location.url('/onboarding');
         }
 
+        $scope.getAmoebaShareRequest = function() {
+            var requestsQuery = new Parse.Query(ShareAmoebaRequest);
+            requestsQuery.equalTo("requestee", $rootScope.sessionUser);
+            requestsQuery.include("requester");
+            requestsQuery.first().then(function(result) {
+                $scope.incomingAmoebaRequest = result;
+            },
+            function(error) {
+                $scope.incomingAmoebaRequest = null;
+            });
+        };
+
         if ($rootScope.sessionUser) {
             
              //Get the amoebae that this user owns.
@@ -78,8 +90,8 @@ angular.module('myAmoebaApp')
                     console.log(error.message);
                 }
             });
-                    
             
+            //Get the user's Facebook friends who play this game.
             if ($rootScope.isFbReady)
             {
                 console.log("Fetching recipients");
@@ -89,7 +101,26 @@ angular.module('myAmoebaApp')
                 $rootScope.$on("onFbInitialized", fetchRecipients);
             }
             
+            //Get a list of requests
+            $scope.getAmoebaShareRequest();
         }
+
+        $scope.clearAmoebaShareRequest = function() {
+            var currRequest = $scope.incomingAmoebaRequest;
+
+            if (!currRequest) {
+                return;
+            }
+
+            $scope.incomingAmoebaRequest = null;
+            currRequest.destroy()
+            .then(function(result) {
+                $scope.getAmoebaShareRequest();
+            },
+            function(error) {
+                console.log("Problem clearing amoeba share request: " + error.message);
+            });
+        };
         
         $scope.handleLogoutClick = function() {
             MyAmoebaUser.logOut();
@@ -200,6 +231,12 @@ angular.module('myAmoebaApp')
                     amoebaToSend.recipient = recipientUser;
                     amoebaToSend.save(null, {
                         success: function(recipientUserAgain) {
+
+                            //If we shared with a user who's request is pending, clear that request.
+                            if ($scope.incomingAmoebaRequest.requester.id == recipientUser.id) {
+                                $scope.clearAmoebaShareRequest();
+                            }
+
                             $scope.sendStateMessage = "Send requested.";
                             $scope.$apply();
                         },
@@ -253,7 +290,12 @@ angular.module('myAmoebaApp')
             });
         };
 
-        $scope.requestAmoebae = function () {
+        $scope.requestAmoebae = function() {
+            requestAmoebaeWithParse();
+            requestAmoebaeWithFacebook();
+        }; 
+
+        var requestAmoebaeWithFacebook = function () {
             var fbRecipientIds = [];
             for (var i = 0; i < $scope.recipients.length; i++) {
                 fbRecipientIds[i] = $scope.recipients[i].id;
@@ -264,7 +306,30 @@ angular.module('myAmoebaApp')
                 to: fbRecipientIds
             },
             function(response) {
+                console.log("Facebook request response: " + response);
+            });
+        };
 
+        var requestAmoebaeWithParse = function() {
+            var userFriends = new Parse.Query("User");
+            for (var i = 0; i < $scope.recipients.length; i++) {
+                userFriends.equalTo('facebookId', $scope.recipients[i].id);
+            }
+            userFriends.find()
+            .then(function(results) {
+                var requests = [];
+                for (var i = 0; i < results.length; i++) {
+                    requests[i] = new ShareAmoebaRequest();
+                    requests[i].requester = $rootScope.sessionUser;
+                    requests[i].requestee = results[i];
+                }
+                return Parse.Object.saveAll(requests);
+            })
+            .then(function(results) {
+                console.log("Parse request made.");
+            },
+            function(error) {
+                console.log("Could not create the Parse AmoebaRequest: " + error.message);
             });
         };
     }]);
