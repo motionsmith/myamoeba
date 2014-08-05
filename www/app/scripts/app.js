@@ -8,7 +8,8 @@ angular
         'ngRoute',
         'ngSanitize',
         'ngTouch',
-        'MyAmoebaModels'
+        'MyAmoebaModels',
+        'services.config'
     ])
     .config(['$routeProvider', function ($routeProvider) {
         $routeProvider
@@ -36,19 +37,19 @@ angular
             redirectTo: '/'
         });
     }])
-    .run(['$rootScope', '$location', 'MyAmoebaUser', function($rootScope, $location, MyAmoebaUser) {
+    .run(['$rootScope', '$location', 'MyAmoebaUser', 'configuration', function($rootScope, $location, MyAmoebaUser, configuration) {
 
       console.log("Angular run");
       $rootScope.isFbReady = false;
       Parse.initialize("iLnBp9fs6Rt8bT4aFWZdiVShVs0fZuxhbpyh20UX", "UCNtTlpwG06wLcXBhY8YwlScUndCt3jKsx4VHY6H");
       //$rootScope.fbAppId = '266061040264102'; //Prod
-      $rootScope.fbAppId = '266345616902311'; //Dev
+      //$rootScope.fbAppId = '266345616902311'; //Dev
 
           window.fbAsyncInit = function() {
               console.log("Facebook SDK downloaded. Attempting to initialize Facebook...");
               console.log("Initializing Facebook.");
               Parse.FacebookUtils.init({
-                  appId         : $rootScope.fbAppId,
+                  appId         : configuration.fbAppId,
                   cookie        : true,
                   xfbml         : true,
                   version       : 'v2.0'

@@ -237,6 +237,35 @@ module.exports = function (grunt) {
     //   dist: {}
     // },
 
+    replace: {
+      development: {
+        options: {
+          patterns: [{
+            json: grunt.file.readJSON('./config/environments/development.json')
+          }]
+        },
+        files: [{
+          expand: true,
+          flatten: true,
+          src: ['./config/config.js'],
+          dest: '<%= yeoman.app %>/scripts/services/'
+        }]
+      },
+      production: {
+        options: {
+          patterns: [{
+            json: grunt.file.readJSON('./config/environments/production.json')
+          }]
+        },
+        files: [{
+          expand: true,
+          flatten: true,
+          src: ['./config/config.js'],
+          dest: '<%= yeoman.app %>/scripts/services/'
+        }]
+      }
+    },  
+
     imagemin: {
       dist: {
         files: [{
@@ -370,6 +399,7 @@ module.exports = function (grunt) {
       'concurrent:server',
       'autoprefixer',
       'connect:livereload',
+      'replace:development',
       'watch'
     ]);
   });
@@ -388,6 +418,7 @@ module.exports = function (grunt) {
   ]);
 
   grunt.registerTask('build', [
+    'replace:production',
     'clean:dist',
     'wiredep',
     'useminPrepare',
@@ -409,4 +440,6 @@ module.exports = function (grunt) {
     'test',
     'build'
   ]);
+
+  grunt.loadNpmTasks('grunt-replace');
 };
