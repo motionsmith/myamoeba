@@ -37,7 +37,7 @@ Parse.Cloud.define("getAncestors", function(request, response) {
 
 	if (isNaN(limit))  {limit = 25};
 
-	service.getAncestors({}, request.params.amoebaId, limit).then(function(result) {
+	service.getAncestors({}, [request.params.amoebaId], limit).then(function(result) {
 
 		// Expect result to be an object mapping amoebaId to amoeba.
 		result = _.values(result);

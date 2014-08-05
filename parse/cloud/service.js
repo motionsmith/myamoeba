@@ -4,40 +4,50 @@ var _ = require('underscore');
  * This recursively queries for Amoeba parents.
  * accumulator: an array where Amoeba's are accumulated.
  */
-var getAncestors = function(accumulator, amoebaId, limit) {
+var getAncestors = function(accumulator, amoebaIds, limit) {
 
 	var promise = new Parse.Promise();
 
-    var query = new Parse.Query("Amoeba");
-    query.include('breeder');  // ...because the UI wants amoeba.breeder.surname
 
-    if (amoebaId in accumulator) {
+    idList = _.filter(amoebaIds, function(x) { return !(x in accumulator);});
+
+    if (idList.length < 1) {
         promise.resolve(accumulator);
         return promise;
     }
 
-    query.get(amoebaId).then(
-    	function(node) {
+    var query = new Parse.Query("Amoeba");
+    query.include('breeder');  // ...because the UI wants amoeba.breeder.surname
+    query.containedIn('objectId', idList);
 
-			parentA = node.get('parentA');
-			parentB = node.get('parentB');
-    		accumulator[node.id] = node;
-    		
-            // TODO: Add guards for circular references.
-   		    promises = [];
-   		    if (parentA !== undefined) {
-   		    	promises.push(getAncestors(accumulator, parentA.id, limit));	   		    	
-   		    }
-   		    if (parentB !== undefined) {
-   		    	promises.push(getAncestors(accumulator, parentB.id, limit));	   		    	
-   		    }
+    console.log("ancestor query: " + JSON.stringify(query));
+    query.find().then(
+    	function(results) {
 
+            promises = {};
+
+            _.each(results, function(node) {
+
+    			parentA = node.get('parentA');
+    			parentB = node.get('parentB');
+        		accumulator[node.id] = node;
+        		
+                // TODO: Add guards for circular references.
+       		    if (parentA !== undefined) {
+       		    	promises[parentA.id] = 1;	   		    	
+       		    }
+       		    if (parentB !== undefined) {
+       		    	promises[parentB.id] = 1;
+       		    }
+
+            });
+            promises = _.keys(promises);
             if (promises.length < 1 || _.keys(accumulator).length >= limit) {
                 promise.resolve(accumulator);
             }
             else {
        			// Recursive calls for parents, run in parallel via Parse.Promise.when method.
-    			Parse.Promise.when(promises).then(
+    			Parse.Promise.when(getAncestors(accumulator, promises, limit)).then(
     				function(a, b) {
     					promise.resolve(accumulator);
     				},
@@ -45,17 +55,21 @@ var getAncestors = function(accumulator, amoebaId, limit) {
     				    promise.reject(error);
     				});
             }
-    	},
-    	function(error) {
-            console.log("error: " + JSON.stringify(error));
-            if (error.code == 101) {
-                console.log("AmoebaId: " + amoebaId + " not found, so resolving.");
-                promise.resolve(accumulator);
-            }
-            else {
-        		promise.reject(error);
-            }
+        
         });
+
+
+    	// },
+    	// function(error) {
+     //        console.log("error: " + JSON.stringify(error));
+     //        if (error.code == 101) {
+     //            console.log("AmoebaId: " + amoebaId + " not found, so resolving.");
+     //            promise.resolve(accumulator);
+     //        }
+     //        else {
+     //    		promise.reject(error);
+     //        }
+     //    });
 
     return promise;
 
