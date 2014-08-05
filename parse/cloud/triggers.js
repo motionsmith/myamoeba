@@ -1,6 +1,7 @@
+var _ = require('underscore');
+
 Parse.Cloud.beforeSave("Amoeba", function(request, response) {
 
-	parentKeys = ['parentA', 'parentB'];
 	breeder = request.object.get('breeder');
 	console.log("Saving Amoeba: Breeder: "+JSON.stringify(breeder));
 
@@ -14,11 +15,9 @@ Parse.Cloud.beforeSave("Amoeba", function(request, response) {
 	    }
 	    numAncestors = 0;
 
-		for (k in parentKeys) {
-			var parent = request.object.get(parentKeys[k]);
+	    _.each(['parentA', 'parentB'], function(parentKey) {
+			var parent = request.object.get(parentKey);
 
-			parent_totalAncestralFriends = 0;
-			parent_numAncestors = 0;
 			if (parent) {
 				numAncestors += 1; // count parent
 				parentAncestors = parent.get('numAncestors');
@@ -31,11 +30,13 @@ Parse.Cloud.beforeSave("Amoeba", function(request, response) {
 					totalFriends += parentTotalFriends;
 				}
 			}
-		}
+
+	    });
 
 		request.object.set("numAncestors", numAncestors);
 		request.object.set("totalFriends", totalFriends);
 
+		console.log("Saving trigger-modified Amoeba: " + JSON.stringify(request.object));
 		response.success();
 
     });
