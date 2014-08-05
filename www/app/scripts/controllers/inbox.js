@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('myAmoebaApp')
-    .controller('InboxCtrl', ['$scope', '$location', '$rootScope', 'Amoeba', function ($scope, $location, $rootScope, Amoeba) {
+    .controller('InboxCtrl', ['$scope', '$location', '$rootScope', 'Amoeba', 'ShareAmoebaRequest', function ($scope, $location, $rootScope, Amoeba, ShareAmoebaRequest) {
         
         $scope.accept = function (index) {
             var acceptedAmoeba = $scope.incomingAmoebae[index];
@@ -36,25 +36,52 @@ angular.module('myAmoebaApp')
             });
         };
 
+        var requestAmoebaeWithFacebook = function () {
+            var fbRecipientIds = [];
+            for (var i = 0; i < $scope.recipients.length; i++) {
+                fbRecipientIds[i] = $scope.recipients[i].id;
+            }
+            FB.ui( {
+                method: 'apprequests',
+                message: 'Hey, can you send me some amoebae? I\'d like to start breeding.',
+                to: fbRecipientIds
+            },
+            function(response) {
+                console.log("Facebook request response: " + response);
+            });
+        };
+
+        var requestAmoebaeWithParse = function() {
+            var userFriends = new Parse.Query("User");
+            for (var i = 0; i < $scope.recipients.length; i++) {
+                userFriends.equalTo('facebookId', $scope.recipients[i].id);
+            }
+            userFriends.find()
+            .then(function(results) {
+                var requests = [];
+                for (var i = 0; i < results.length; i++) {
+                    requests[i] = new ShareAmoebaRequest();
+                    requests[i].requester = $rootScope.sessionUser;
+                    requests[i].requestee = results[i];
+                }
+                return Parse.Object.saveAll(requests);
+            })
+            .then(function(results) {
+                console.log("Parse request made.");
+            },
+            function(error) {
+                console.log("Could not create the Parse AmoebaRequest: " + error.message);
+            });
+        };
+
         $scope.requestAmoebae = function () {
             var recipients = [];
 
             FB.api('/me/friends', function(response) {
                 if (response && !response.error) {
                     $scope.recipients = response.data;
-                    for (var i = 0; i < response.data.length; i++) {
-                        recipients[i] = response.data[i].id;
-                    }
-
-                    FB.ui( {
-                        method: 'apprequests',
-                        message: 'Hey, can you send me some amoebae? I\'d like to start breeding.',
-                        to: recipients
-                    },
-                    function(response) {
-
-                    });
-
+                    requestAmoebaeWithParse();
+                    requestAmoebaeWithFacebook();
                 }
                 else if (response.error) {
                     console.log("Could not get friends: " + response.error.message);

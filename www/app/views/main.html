@@ -7,7 +7,7 @@
 </div>
 <div ng-show="incomingAmoebaRequest">
     <p>
-        <strong>{{incomingAmoebaRequest.requester.username}}</strong> needs some amoebae! Help them out by sharing some of yours. (<a href="clearAmoebaShareRequest()">Dismiss</a>)
+        <strong>{{incomingAmoebaRequest.requester.username}}</strong> needs some amoebae! Help them out by sharing some of yours. (<a ng-click="clearAmoebaShareRequest()">Dismiss</a>)
     </p>
 </div>
 <div ng-show="myAmoebae.length == 1">
