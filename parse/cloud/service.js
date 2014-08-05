@@ -64,18 +64,27 @@ var getAncestors = function(accumulator, amoebaId, limit) {
 exports.getAncestors = getAncestors;
 
 
-var offspring = function(accumulator, amoebaId) {
+var offspring = function(accumulator, amoebaIds) {
 
  
     var promise = new Parse.Promise();
 
     var Amoeba = Parse.Object.extend('Amoeba');
 
-    var amoeba = new Amoeba();
-    amoeba.id = amoebaId;
+    // var amoeba = new Amoeba();
+    // amoeba.id = amoebaId;
 
-    q1 = new Parse.Query("Amoeba").equalTo('parentA', amoeba);
-    q2 = new Parse.Query("Amoeba").equalTo('parentB', amoeba);
+    parentList = {};
+    _.each(amoebaIds, function(amoebaId) {
+        a = new Amoeba();
+        a.id = amoebaId;
+        parentList[amoebaId] = a;
+    });
+
+    parentList = _.values(parentList);
+
+    q1 = new Parse.Query("Amoeba").containedIn('parentA', parentList);
+    q2 = new Parse.Query("Amoeba").containedIn('parentB', parentList);
     var query = Parse.Query.or(q1, q2);
     query.include('breeder');
  
@@ -86,20 +95,22 @@ var offspring = function(accumulator, amoebaId) {
         }
         else {
 
-            promises = [];
+            promises = {};
 
             for (x in results) {
                 a = results[x];
                 if (a.id in accumulator) { continue; }
                 accumulator[a.id] = a;
-                promises.push(offspring(accumulator, a.id));
+                promises[a.id] = 1;
             }
+
+            promises = _.keys(promises);
 
             if (promises.length == 0) {
                 promise.resolve(accumulator);
             }
             else {
-                Parse.Promise.when(promises).then(
+                Parse.Promise.when(offspring(accumulator, promises)).then(
                     function() {
                         promise.resolve(accumulator);
                     },
